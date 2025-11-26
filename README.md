@@ -9,23 +9,6 @@ Live Demo: https://cognitranslate-app.vercel.app/
 <img width="731" height="1036" alt="Image" src="https://github.com/user-attachments/assets/b34e1b0d-ca42-4ec4-803d-a3e7eb83c8f6" />
 
 ✨ Features
-CogniTranslate is packed with advanced features designed for a seamless and intuitive user experience:-
-
-🧠 AI-Powered Translations: Leverages the Gemini 1.5 Flash model for high-quality, nuanced translations that understand context and tone.
-
-🎙️ Voice-to-Text Input: Speak directly into the app using the integrated Web Speech API. The microphone button provides clear visual feedback when listening.
-
-🔍 Automatic Language Detection: No need to specify the source language. The application intelligently detects the input language and translates from it automatically.
-
-📜 Translation History: Your five most recent translations are saved to your session and displayed in a clean history list for easy reference.
-
-📋 Copy to Clipboard: A convenient one-click button to copy the translated text, with a tooltip for confirmation.
-
-🎨 Animated & Responsive UI: A beautiful, "living" interface with a gently shifting gradient background, floating shapes for depth, and smooth, fluid animations on all interactive elements.
-
-⚙️ Dynamic & Scalable: The language lists are dynamically populated from the backend, making it easy to add more languages in the future.
-
-🛠️ Technology Stack
 The project is built with a modern, robust technology stack:
 
 Backend: Python 3, Flask (for routing and session management).

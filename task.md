@@ -1,0 +1,22 @@
+# Tasks
+
+- [x] Analyze existing codebase <!-- id: 0 -->
+    - [x] Read and understand `app.py` and `main.py` <!-- id: 1 -->
+    - [x] Review `requirements.txt` dependencies <!-- id: 2 -->
+    - [x] Inspect frontend templates <!-- id: 3 -->
+    - [x] Summarize project structure and functionality <!-- id: 4 -->
+    - [x] Analyze Project Report <!-- id: 6 -->
+- [ ] Plan new features <!-- id: 5 -->
+    - [x] Receive feature requirements from user <!-- id: 7 -->
+    - [x] Create Implementation Plan <!-- id: 8 -->
+- [x] Implement Voice Cloning <!-- id: 9 -->
+    - [x] Frontend: Implement `MediaRecorder` to capture audio <!-- id: 10 -->
+    - [x] Backend: Integrate ElevenLabs API for Voice Cloning & TTS <!-- id: 11 -->
+    - [x] Backend: Update translation logic to handle audio input <!-- id: 12 -->
+    - [x] UI: Add audio playback for translated result <!-- id: 13 -->
+- [x] Verify Features <!-- id: 14 -->
+- [ ] Future Enhancements <!-- id: 15 -->
+    - [ ] Document Translation (PDF/Word) <!-- id: 16 -->
+    - [ ] Live Conversation Mode <!-- id: 17 -->
+    - [ ] Image/Camera Translation <!-- id: 18 -->
+    - [ ] "Universal Personal Voice" (Pre-recorded Voice ID) <!-- id: 19 -->
