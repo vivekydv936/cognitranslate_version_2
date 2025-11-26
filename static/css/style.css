@@ -1,0 +1,131 @@
+/* static/css/style.css */
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #e6fffa; /* Fallback color */
+    background-image: linear-gradient(135deg, #e6fffa 0%, #d1fae5 100%);
+}
+.main-container {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 1.5rem;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease-in-out;
+    animation: fadeInUp 0.8s ease-out both;
+}
+.main-container:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.2);
+}
+.btn-primary {
+    background: linear-gradient(to right, #0d9488, #14b8a6);
+    transition: all 0.3s ease;
+}
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(13, 148, 136, 0.3), 0 4px 6px -4px rgba(13, 148, 136, 0.3);
+}
+
+.textarea-container {
+    position: relative;
+}
+
+textarea, select {
+    background-color: rgba(255, 255, 255, 0.5);
+    border-color: rgba(209, 213, 219, 0.7);
+}
+textarea:focus, select:focus {
+    box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.3);
+    border-color: #0d9488;
+    background-color: white;
+}
+.loader {
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    border-top: 4px solid #ffffff;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    animation: spin 1s linear infinite;
+}
+
+/* --- Animation Keyframes --- */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Staggered animation delays */
+.header-anim { animation: fadeInUp 0.8s 0.2s ease-out both; }
+.form-el-1-anim { animation: fadeInUp 0.8s 0.3s ease-out both; }
+.form-el-2-anim { animation: fadeInUp 0.8s 0.4s ease-out both; }
+.form-el-3-anim { animation: fadeInUp 0.8s 0.5s ease-out both; }
+.result-anim { animation: fadeInUp 0.8s 0.6s ease-out both; }
+
+/* --- Copy Button Styles --- */
+.copy-button {
+    position: relative;
+    background-color: #f0fdfa;
+    border: 1px solid #ccfbf1;
+    border-radius: 8px;
+    padding: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: #134e4a;
+}
+.copy-button:hover {
+    background-color: #ccfbf1;
+    border-color: #99f6e4;
+}
+.copy-button .copy-tooltip {
+    position: absolute;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #134e4a;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease;
+}
+.copy-button:hover .copy-tooltip {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* --- UPDATED: Microphone Button Styles --- */
+.mic-button {
+    background-color: #f0fdfa;
+    border: 1px solid #ccfbf1;
+    border-radius: 50%;
+    width: 44px; /* Made slightly larger */
+    height: 44px;
+    display: inline-flex; /* Changed from flex */
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #134e4a;
+    transition: all 0.2s ease;
+}
+.mic-button:hover {
+    background-color: #ccfbf1;
+}
+.mic-button.is-listening {
+    background-color: #ef4444; /* Red when listening */
+    color: white;
+    animation: pulse 1.5s infinite;
+}
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}

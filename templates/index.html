@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CogniTranslate - The soul of translation.</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+<body class="flex items-center justify-center min-h-screen p-4">
+
+    <div class="main-container w-full max-w-2xl p-6 md:p-10">
+
+        <!-- Header Section -->
+        <div class="text-center mb-8 header-anim">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-800">
+                <span class="text-teal-700">Cogni</span><span class="text-gray-500">Translate</span>
+            </h1>
+            <p class="text-gray-700 mt-2">The soul of translation.</p>
+        </div>
+
+        <!-- Form Section -->
+        <form id="translator-form" method="POST" class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 form-el-1-anim">
+                <div>
+                    <label for="source_language" class="block text-sm font-medium text-gray-700 mb-2">From</label>
+                    <select name="source_language" id="source_language"
+                        class="w-full p-3 border bg-white rounded-lg focus:outline-none transition-all duration-300">
+                        <option value="Detect Language" {% if selected_source_language=='Detect Language' %}selected{%
+                            endif %}>Detect Language</option>
+                        {% for lang in languages %}<option value="{{ lang }}" {% if selected_source_language==lang
+                            %}selected{% endif %}>{{ lang }}</option>{% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label for="target_language" class="block text-sm font-medium text-gray-700 mb-2">To</label>
+                    <select name="target_language" id="target_language"
+                        class="w-full p-3 border bg-white rounded-lg focus:outline-none transition-all duration-300">
+                        {% for lang in languages %}<option value="{{ lang }}" {% if selected_target_language==lang
+                            %}selected{% endif %}>{{ lang }}</option>{% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <!-- Input Text Area -->
+            <div class="form-el-2-anim textarea-container">
+                <textarea name="text_to_translate" id="text_to_translate" rows="5"
+                    placeholder="Enter text to translate..." required
+                    class="w-full p-3 border rounded-lg focus:outline-none transition-all duration-300">{{ original_text or '' }}</textarea>
+                {% if detected_language %}
+                <p class="text-xs text-gray-500 mt-1">{{ detected_language }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Mic Button Container -->
+            <div class="text-center form-el-3-anim">
+                <p class="text-xs text-gray-500 mb-2">or</p>
+                <button type="button" id="mic-btn" class="mic-button" title="Translate with voice">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+                        viewBox="0 0 16 16">
+                        <path
+                            d="M3.5 6.5A.5.5 0 0 1 4 7v1a4 4 0 0 0 8 0V7a.5.5 0 0 1 1 0v1a5 5 0 0 1-4.5 4.975V15h3a.5.5 0 0 1 0 1h-7a.5.5 0 0 1 0-1h3v-2.025A5 5 0 0 1 3 8V7a.5.5 0 0 1 .5-.5z" />
+                        <path
+                            d="M10 8a2 2 0 1 1-4 0V3a2 2 0 1 1 4 0v5zM8 0a3 3 0 0 0-3 3v5a3 3 0 0 0 6 0V3a3 3 0 0 0-3-3z" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Translate Button -->
+            <button type="submit" id="translate-btn"
+                class="btn-primary w-full flex items-center justify-center text-white font-semibold py-3 px-4 rounded-lg shadow-md form-el-3-anim">
+                <span id="btn-text">Translate</span>
+                <div id="loader" class="loader hidden ml-3"></div>
+            </button>
+        </form>
+
+        <!-- Result Section & History... (rest of the file is the same) -->
+        <div id="result-container" class="mt-8 result-anim {% if not translation %}hidden{% endif %}">
+            <div class="flex justify-between items-center mb-3">
+                <h3 class="text-lg font-semibold text-gray-800">Translation:</h3>
+                <button id="copy-btn" class="copy-button" title="Copy to clipboard"><svg
+                        xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+                        viewBox="0 0 16 16">
+                        <path
+                            d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1z" />
+                        <path
+                            d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0z" />
+                    </svg><span class="copy-tooltip">Copy</span></button>
+            </div>
+            <div id="result-text"
+                class="bg-gray-50/70 p-4 border border-gray-200 rounded-lg text-gray-700 whitespace-pre-wrap">{{
+                translation or '' }}</div>
+            <audio id="audio-player" controls class="w-full mt-4 hidden"></audio>
+        </div>
+        {% if history %}
+        <div class="mt-10 result-anim">
+            <h3 class="text-lg font-semibold text-gray-800 mb-3">Recent History</h3>
+            <div class="space-y-4">
+                {% for item in history %}<div class="bg-gray-50/70 p-4 border border-gray-200 rounded-lg">
+                    <p class="text-xs text-gray-500 mb-1">From {{ item.source }} to {{ item.target }}</p>
+                    <p class="text-sm text-gray-600 mb-2">"{{ item.original }}"</p>
+                    <p class="text-sm font-semibold text-teal-800">"{{ item.translation }}"</p>
+                </div>{% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        // --- Existing Logic ---
+        const form = document.getElementById('translator-form');
+        const translateBtn = document.getElementById('translate-btn');
+        const btnText = document.getElementById('btn-text');
+        const loader = document.getElementById('loader');
+
+        form.addEventListener('submit', function () {
+            btnText.textContent = 'Translating...';
+            loader.classList.remove('hidden');
+            translateBtn.disabled = true;
+            translateBtn.classList.add('opacity-75', 'cursor-not-allowed');
+        });
+
+        const copyBtn = document.getElementById('copy-btn');
+        const resultTextElement = document.getElementById('result-text');
+        const tooltip = copyBtn.querySelector('.copy-tooltip');
+
+        copyBtn.addEventListener('click', function () {
+            if (resultTextElement && resultTextElement.textContent.trim()) {
+                const textToCopy = resultTextElement.textContent.trim();
+                const tempTextArea = document.createElement('textarea');
+                tempTextArea.value = textToCopy;
+                document.body.appendChild(tempTextArea);
+                tempTextArea.select();
+                try {
+                    const successful = document.execCommand('copy');
+                    tooltip.textContent = successful ? 'Copied!' : 'Failed!';
+                } catch (err) {
+                    console.error('Fallback: Oops, unable to copy', err);
+                    tooltip.textContent = 'Failed!';
+                }
+                document.body.removeChild(tempTextArea);
+                setTimeout(() => { tooltip.textContent = 'Copy'; }, 2000);
+            }
+        });
+
+        // --- Voice Cloning & Audio Translation Logic ---
+        const micBtn = document.getElementById('mic-btn');
+        const textArea = document.getElementById('text_to_translate');
+        const resultContainer = document.getElementById('result-container');
+        const audioPlayer = document.getElementById('audio-player');
+
+        let mediaRecorder;
+        let audioChunks = [];
+
+        micBtn.addEventListener('click', async () => {
+            if (micBtn.classList.contains('is-listening')) {
+                // Stop Recording
+                if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                    mediaRecorder.stop();
+                }
+                micBtn.classList.remove('is-listening');
+                textArea.placeholder = "Processing audio...";
+            } else {
+                // Start Recording
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    mediaRecorder = new MediaRecorder(stream);
+                    audioChunks = [];
+
+                    mediaRecorder.ondataavailable = event => {
+                        audioChunks.push(event.data);
+                    };
+
+                    mediaRecorder.onstop = async () => {
+                        const audioBlob = new Blob(audioChunks, { type: 'audio/mp3' });
+                        const formData = new FormData();
+                        formData.append('audio_data', audioBlob, 'recording.mp3');
+                        formData.append('target_language', document.getElementById('target_language').value);
+
+                        // UI Updates
+                        textArea.value = "Uploading and Cloning Voice...";
+                        // Disable buttons
+                        micBtn.disabled = true;
+                        translateBtn.disabled = true;
+
+                        try {
+                            const response = await fetch('/translate_audio', {
+                                method: 'POST',
+                                body: formData
+                            });
+
+                            const data = await response.json();
+
+                            if (data.error) {
+                                textArea.value = "Error: " + data.error;
+                            } else {
+                                textArea.value = data.original_text;
+                                resultTextElement.textContent = data.translation;
+                                resultContainer.classList.remove('hidden');
+
+                                if (data.audio_base64) {
+                                    audioPlayer.src = "data:audio/mp3;base64," + data.audio_base64;
+                                    audioPlayer.classList.remove('hidden');
+                                    // Auto-play might be blocked by browsers, but we try
+                                    try { await audioPlayer.play(); } catch (e) { console.log("Auto-play blocked"); }
+                                }
+                            }
+                        } catch (error) {
+                            textArea.value = "Network Error: " + error.message;
+                        } finally {
+                            micBtn.disabled = false;
+                            translateBtn.disabled = false;
+                            textArea.placeholder = "Enter text or use the mic...";
+                        }
+                    };
+
+                    mediaRecorder.start();
+                    micBtn.classList.add('is-listening');
+                    textArea.placeholder = "Recording... Click mic to stop.";
+                    textArea.value = "";
+
+                } catch (err) {
+                    console.error("Error accessing microphone:", err);
+                    alert("Microphone access denied or not supported.");
+                }
+            }
+        });
+    </script>
+
+</body>
+
+</html>
