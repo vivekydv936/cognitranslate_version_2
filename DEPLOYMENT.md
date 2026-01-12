@@ -25,13 +25,29 @@ git commit -m "Initial commit - Voice Cloning working"
 Paste those commands into your terminal. They usually look like:
 ```bash
 git branch -M main
-git remote add origin https://github.com/YOUR_USERNAME/cognitranslate-ai.git
+git remote add origin https://github.com/YOUR_USERNAME/cognitranslater-ai.git
 git push -u origin main
 ```
 
 ---
 
-## Part 2: Deploying to the Cloud
+## Part 2: Deploying to Hugging Face (Simultaneous Deployment)
+
+**Yes! You can connect to BOTH GitHub and Hugging Face.**
+Git allows multiple "remotes". We will call GitHub `origin` and Hugging Face `space`.
+
+### 1. Add Hugging Face Remote
+```bash
+git remote add space https://huggingface.co/spaces/YOUR_NAME/cognitranslate-app
+```
+
+### 2. Push to Both
+*   **To Save Code (GitHub):** `git push origin main`
+*   **To Deploy App (Hugging Face):** `git push space main`
+
+---
+
+## Part 3: Hugging Face Configuration
 
 **Critical Note:** Your app requires a GPU (or a strong CPU) and Python 3.10. Standard free web hosts (Vercel, Netlify) **cannot** run this.
 
