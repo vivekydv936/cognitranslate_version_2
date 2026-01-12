@@ -30,10 +30,9 @@ else:
 
 # --- Centralized Language List ---
 LANGUAGES = [
-    "Arabic", "Bengali", "Chinese (Simplified)", "Dutch", "English",
-    "French", "German", "Hindi", "Indonesian", "Italian", "Japanese",
-    "Korean", "Polish", "Portuguese", "Russian", "Spanish", "Swedish",
-    "Turkish", "Vietnamese"
+    "Arabic", "Chinese (Simplified)", "Czech", "Dutch", "English",
+    "French", "German", "Hindi", "Hungarian", "Italian", "Japanese",
+    "Korean", "Polish", "Portuguese", "Russian", "Spanish", "Turkish"
 ]
 
 # --- Route to handle favicon.ico requests ---
@@ -97,18 +96,29 @@ def home():
                                languages=LANGUAGES)
 
 # --- Voice Cloning & Audio Translation Route ---
-import requests
 import base64
 import json
+import uuid
+import os
+from TTS.api import TTS
 
-ELEVENLABS_API_KEY = os.getenv("ELEVENLABS_API_KEY")
+# Initialize Coqui TTS
+# Based on your working example: tts = TTS("tts_models/multilingual/multi-dataset/xtts_v2", gpu=False)
+# We will try to use GPU if available, else CPU, but using the exact model path you verified.
+print("⏳ Loading Coqui TTS Model...")
+try:
+    # Try GPU first
+    tts = TTS("tts_models/multilingual/multi-dataset/xtts_v2").to("cuda")
+    print("✅ Coqui TTS Model Loaded on GPU!")
+except Exception as e:
+    print(f"⚠️ GPU Load failed: {e}. Falling back to CPU (gpu=False) as per your test.")
+    tts = TTS("tts_models/multilingual/multi-dataset/xtts_v2", gpu=False)
+    print("✅ Coqui TTS Model Loaded on CPU.")
 
 @app.route('/translate_audio', methods=['POST'])
 def translate_audio():
     if not model:
         return {"error": "Gemini Model not configured"}, 500
-    if not ELEVENLABS_API_KEY:
-        return {"error": "ElevenLabs API Key not configured"}, 500
 
     audio_file = request.files.get('audio_data')
     target_language = request.form.get('target_language')
@@ -118,20 +128,14 @@ def translate_audio():
 
     try:
         # 1. Speech-to-Text (STT) using Gemini
-        # We can send the audio bytes directly to Gemini 1.5 Flash
         audio_bytes = audio_file.read()
         
         stt_prompt = "Transcribe the following audio exactly as spoken. Return only the text."
         
-        # Prepare the content parts
-        # Note: Check if the current SDK version supports inline data for 'audio/wav' or 'audio/mp3'
-        # Assuming the frontend sends a blob that we can treat as audio/wav or similar.
-        # We'll try to use the standard generate_content with inline data.
-        
         response = model.generate_content([
             stt_prompt,
             {
-                "mime_type": "audio/mp3", # Assuming MP3 or WAV, Gemini is flexible
+                "mime_type": "audio/mp3",
                 "data": audio_bytes
             }
         ])
@@ -145,63 +149,71 @@ def translate_audio():
         translated_text = translation_response.text.strip()
         print(f"Translated Text: {translated_text}")
 
-        # 3. Voice Cloning & TTS (ElevenLabs)
-        # A. Add Voice
-        add_voice_url = "https://api.elevenlabs.io/v1/voices/add"
-        headers = {"xi-api-key": ELEVENLABS_API_KEY}
+        # 3. Local Voice Cloning (Coqui TTS)
+        # Save the user's audio to a temp file for cloning
+        input_audio_path = f"temp_input_{uuid.uuid4()}.webm"
+        cloning_source_path = f"temp_source_{uuid.uuid4()}.wav"
         
-        # Reset file pointer to read again for ElevenLabs
-        audio_file.seek(0)
+        with open(input_audio_path, "wb") as f:
+            f.write(audio_bytes)
+
+        # Explicitly convert to WAV using FFmpeg to ensure compatibility
+        import subprocess
+        import shutil
+
+        if not shutil.which("ffmpeg"):
+            print("❌ ERROR: FFmpeg not found in PATH. Please install FFmpeg correctly.")
+            return {"error": "FFmpeg not found on server"}, 500
+
+        try:
+            # Convert WebM to WAV (16kHz, mono is usually best for TTS)
+            command = [
+                "ffmpeg", "-y", "-i", input_audio_path, 
+                "-ac", "1", "-ar", "22050", 
+                cloning_source_path
+            ]
+            subprocess.run(command, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            print(f"✅ Converted audio to WAV: {cloning_source_path}")
+        except Exception as e:
+            print(f"❌ FFmpeg conversion failed: {e}")
+            return {"error": "Failed to process audio format"}, 500
         
-        files = {
-            'files': ('sample.mp3', audio_file, 'audio/mpeg'),
-            'name': (None, 'Temp User Voice')
+        output_filename = f"output_{uuid.uuid4()}.wav"
+        
+        # Map full language names to codes (XTTS supports specific codes)
+        # XTTS v2 supports: en, es, fr, de, it, pt, pl, tr, ru, nl, cs, ar, zh-cn, ja, hu, ko
+        lang_map = {
+            "English": "en", "Spanish": "es", "French": "fr", "German": "de", 
+            "Italian": "it", "Portuguese": "pt", "Polish": "pl", "Turkish": "tr", 
+            "Russian": "ru", "Dutch": "nl", "Czech": "cs", "Arabic": "ar", 
+            "Chinese (Simplified)": "zh-cn", "Japanese": "ja", "Hungarian": "hu", 
+            "Korean": "ko", "Hindi": "hi"
         }
         
-        voice_response = requests.post(add_voice_url, headers=headers, files=files)
-        
-        voice_id = ""
-        is_cloned = False
+        target_lang_code = lang_map.get(target_language, "en") # Default to English if not found
 
-        if voice_response.status_code == 200:
-            voice_id = voice_response.json()['voice_id']
-            is_cloned = True
-            print(f"Voice ID (Cloned): {voice_id}")
-        else:
-             # Fallback: Use a standard pre-made voice (e.g., 'Rachel' - a common default)
-             # You can find more IDs in ElevenLabs docs or list them via API
-             print(f"Voice Cloning Failed: {voice_response.text}")
-             print("Falling back to standard voice.")
-             voice_id = "21m00Tcm4TlvDq8ikWAM" # Rachel
-             is_cloned = False
-
-        # B. Generate Audio
-        tts_url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}"
-        tts_headers = {
-            "Content-Type": "application/json",
-            "xi-api-key": ELEVENLABS_API_KEY
-        }
-        tts_data = {
-            "text": translated_text,
-            "model_id": "eleven_multilingual_v2",
-            "voice_settings": {
-                "stability": 0.5,
-                "similarity_boost": 0.75
-            }
-        }
+        print(f"🎙️ Generating Audio in {target_lang_code}...")
         
-        audio_response = requests.post(tts_url, headers=tts_headers, json=tts_data)
+        tts.tts_to_file(
+            text=translated_text,
+            speaker_wav=cloning_source_path, # Use the clean WAV file
+            language=target_lang_code,
+            file_path=output_filename
+        )
         
-        if audio_response.status_code == 200:
-            audio_base64 = base64.b64encode(audio_response.content).decode('utf-8')
-        else:
-            audio_base64 = None
-            print(f"TTS Failed: {audio_response.text}")
+        # Read the generated audio
+        with open(output_filename, "rb") as f:
+            generated_audio_bytes = f.read()
+            
+        audio_base64 = base64.b64encode(generated_audio_bytes).decode('utf-8')
 
-        # C. Delete Voice (Cleanup) - Only if we created one
-        if is_cloned:
-            delete_url = f"https://api.elevenlabs.io/v1/voices/{voice_id}"
-            requests.delete(delete_url, headers=headers)
+        # Cleanup temp files
+        try:
+            os.remove(input_audio_path)
+            os.remove(cloning_source_path)
+            os.remove(output_filename)
+        except:
+            pass
 
         # Update Session History
         if 'history' not in session:
@@ -209,7 +221,7 @@ def translate_audio():
         
         history_item = {
             'original': original_text, 'translation': translated_text,
-            'source': 'Voice', 'target': target_language
+            'source': 'Voice (Local)', 'target': target_language
         }
         session['history'].insert(0, history_item)
         session['history'] = session['history'][:5]

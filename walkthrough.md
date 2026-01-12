@@ -36,3 +36,4 @@ ELEVENLABS_API_KEY=...
 -   **"Microphone access denied"**: Allow microphone permissions in your browser.
 -   **"Voice cloning failed"**: Check your ElevenLabs API key. If on Free Tier, the app will automatically fallback to a standard voice.
 -   **No Audio**: Check your computer volume.
+### BY ME : copy /Y "backups\code_1208\app.py" "app.py"

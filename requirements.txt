@@ -1,4 +1,21 @@
-Flask
-google-generativeai
-python-dotenv
-requests
+# Torch with CUDA 12.1 (Must be installed from this URL)
+--extra-index-url https://download.pytorch.org/whl/cu121
+
+# Deep Learning / AI
+torch==2.5.1+cu121
+torchaudio==2.5.1+cu121
+torchvision==0.20.1+cu121
+TTS==0.22.0
+
+# Critical Versions for Coqui TTS Compatibility
+numpy==1.22.0
+networkx==2.8.8
+scipy==1.11.4
+
+# App Dependencies
+Flask==3.1.2
+google-generativeai==0.8.5
+python-dotenv==1.2.1
+requests==2.32.5 # Removed for local TTS
+TTS
+transformers==4.36.2

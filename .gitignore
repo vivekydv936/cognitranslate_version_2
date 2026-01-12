@@ -5,5 +5,21 @@
 __pycache__/
 *.pyc
 
-# Virtual environment
+# Virtual environments
 venv/
+venv310/
+testing_python_environment/
+
+# Coqui TTS Models (Huge files!)
+tts_models/
+
+# Temporary Audio Files
+temp_output_*.wav
+temp_input_*.webm
+temp_voice_*.webm
+temp_source_*.wav
+output_*.wav
+Recording_wav.wav
+
+# Backups
+backups/
