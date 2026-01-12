@@ -1,3 +1,12 @@
+---
+title: Cognitranslate
+emoji: 🤖
+colorFrom: gray
+colorTo: green
+sdk: docker
+pinned: false
+---
+
 CogniTranslate 🤖✨
 The soul of translation.
 CogniTranslate is a modern, feature-rich translation service powered by Google's Gemini generative AI. It was built to demonstrate the practical application of Large Language Models (LLMs) in creating intelligent, beautiful, and user-friendly tools. The application features a stunning, animated user interface and a suite of advanced functionalities that go far beyond basic translation.
