@@ -17,9 +17,13 @@ tts_models/
 temp_output_*.wav
 temp_input_*.webm
 temp_voice_*.webm
+temp_voice_*.wav
 temp_source_*.wav
 output_*.wav
 Recording_wav.wav
+
+# Documents
+*.pdf
 
 # Backups
 backups/
