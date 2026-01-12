@@ -12,6 +12,9 @@ RUN apt-get update && apt-get install -y \
 # Set up work directory
 WORKDIR /app
 
+# Auto-accept Coqui TTS license (required for headless/Docker environments)
+ENV COQUI_TOS_AGREED=1
+
 # Copy requirements FIRST (for better caching)
 COPY requirements.txt .
 
