@@ -100,6 +100,10 @@ import base64
 import json
 import uuid
 import os
+
+# Auto-accept Coqui TTS license (required for headless/Docker environments)
+os.environ["COQUI_TOS_AGREED"] = "1"
+
 from TTS.api import TTS
 
 # Initialize Coqui TTS
