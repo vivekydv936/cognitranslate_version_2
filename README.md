@@ -1,11 +1,4 @@
----
-title: Cognitranslate
-emoji: 🤖
-colorFrom: gray
-colorTo: green
-sdk: docker
-pinned: false
----
+
 
 # 🎙️ CogniTranslate - AI Voice Cloning & Translation
 
@@ -15,7 +8,7 @@ CogniTranslate is an incredibly cool AI project that does exactly that. It's a w
 
 ---
 
-## 💡 Why This Matters (The Pitch)
+## 💡 Why This Matters 
 
 Imagine a scenario: **A Manager sitting in the UK is on a video call with an Employee in India.** 
 If they use standard text subtitles or a robotic AI voice to translate, the *human connection* is completely lost. The employee won't know if the manager is excited, stressed, or serious because standard translation removes all mood and tone.
