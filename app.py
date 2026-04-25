@@ -139,17 +139,28 @@ def translate_audio():
         response = model.generate_content([
             stt_prompt,
             {
-                "mime_type": "audio/mp3",
+                "mime_type": "audio/webm",
                 "data": audio_bytes
             }
         ])
         
+        # Handle empty/blocked response
+        if not response.candidates or not response.candidates[0].content.parts:
+            print("⚠️ Gemini STT returned empty response (audio may be unclear or too noisy)")
+            return {"error": "Could not transcribe audio. Please speak clearly and try again."}, 400
+        
         original_text = response.text.strip()
+        if not original_text:
+            return {"error": "No speech detected. Please try again."}, 400
         print(f"Transcribed Text: {original_text}")
 
         # 2. Translate Text
         translation_prompt = f"""Translate the following text to {target_language}. Only return the final translated text. Text: "{original_text}" """
         translation_response = model.generate_content(translation_prompt)
+        
+        if not translation_response.candidates or not translation_response.candidates[0].content.parts:
+            return {"error": "Translation failed. Please try again."}, 400
+        
         translated_text = translation_response.text.strip()
         print(f"Translated Text: {translated_text}")
 
@@ -160,6 +171,12 @@ def translate_audio():
         
         with open(input_audio_path, "wb") as f:
             f.write(audio_bytes)
+        
+        # Check if audio file has actual content
+        file_size = os.path.getsize(input_audio_path)
+        print(f"📦 Audio file size: {file_size} bytes")
+        if file_size < 1000:
+            return {"error": "Recording too short or microphone not capturing audio. Please check your mic and try again."}, 400
 
         # Explicitly convert to WAV using FFmpeg to ensure compatibility
         import subprocess
@@ -173,11 +190,15 @@ def translate_audio():
             # Convert WebM to WAV (16kHz, mono is usually best for TTS)
             command = [
                 "ffmpeg", "-y", "-i", input_audio_path, 
-                "-ac", "1", "-ar", "22050", 
+                "-vn", "-acodec", "pcm_s16le", "-ac", "1", "-ar", "22050", 
                 cloning_source_path
             ]
-            subprocess.run(command, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-            print(f"✅ Converted audio to WAV: {cloning_source_path}")
+            result = subprocess.run(command, check=True, capture_output=True, text=True)
+            wav_size = os.path.getsize(cloning_source_path)
+            print(f"✅ Converted audio to WAV: {cloning_source_path} ({wav_size} bytes)")
+            if wav_size < 1000:
+                print("⚠️ WAV file is too small - audio may be silent")
+                return {"error": "Audio appears to be silent. Please speak clearly into your microphone."}, 400
         except Exception as e:
             print(f"❌ FFmpeg conversion failed: {e}")
             return {"error": "Failed to process audio format"}, 500
