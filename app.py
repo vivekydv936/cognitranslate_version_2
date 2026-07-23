@@ -23,7 +23,7 @@ if not API_KEY:
 else:
     try:
         genai.configure(api_key=API_KEY)
-        model = genai.GenerativeModel('gemini-2.5-flash')
+        model = genai.GenerativeModel('gemini-2.0-flash')
         print("Gemini API configured successfully.")
     except Exception as e:
         print(f"Error configuring Gemini API: {e}")
@@ -113,11 +113,11 @@ print("⏳ Loading Coqui TTS Model...")
 try:
     # Try GPU first
     tts = TTS("tts_models/multilingual/multi-dataset/xtts_v2").to("cuda")
-    print("✅ Coqui TTS Model Loaded on GPU!")
+    print(" Coqui TTS Model Loaded on GPU!")
 except Exception as e:
     print(f"⚠️ GPU Load failed: {e}. Falling back to CPU (gpu=False) as per your test.")
     tts = TTS("tts_models/multilingual/multi-dataset/xtts_v2", gpu=False)
-    print("✅ Coqui TTS Model Loaded on CPU.")
+    print(" Coqui TTS Model Loaded on CPU.")
 
 @app.route('/translate_audio', methods=['POST'])
 def translate_audio():
@@ -146,7 +146,7 @@ def translate_audio():
         
         # Handle empty/blocked response
         if not response.candidates or not response.candidates[0].content.parts:
-            print("⚠️ Gemini STT returned empty response (audio may be unclear or too noisy)")
+            print("Gemini STT returned empty response (audio may be unclear or too noisy)")
             return {"error": "Could not transcribe audio. Please speak clearly and try again."}, 400
         
         original_text = response.text.strip()
@@ -183,7 +183,7 @@ def translate_audio():
         import shutil
 
         if not shutil.which("ffmpeg"):
-            print("❌ ERROR: FFmpeg not found in PATH. Please install FFmpeg correctly.")
+            print("ERROR: FFmpeg not found in PATH. Please install FFmpeg correctly.")
             return {"error": "FFmpeg not found on server"}, 500
 
         try:
@@ -195,12 +195,12 @@ def translate_audio():
             ]
             result = subprocess.run(command, check=True, capture_output=True, text=True)
             wav_size = os.path.getsize(cloning_source_path)
-            print(f"✅ Converted audio to WAV: {cloning_source_path} ({wav_size} bytes)")
+            print(f"Converted audio to WAV: {cloning_source_path} ({wav_size} bytes)")
             if wav_size < 1000:
-                print("⚠️ WAV file is too small - audio may be silent")
+                print("WAV file is too small - audio may be silent")
                 return {"error": "Audio appears to be silent. Please speak clearly into your microphone."}, 400
         except Exception as e:
-            print(f"❌ FFmpeg conversion failed: {e}")
+            print(f" FFmpeg conversion failed: {e}")
             return {"error": "Failed to process audio format"}, 500
         
         output_filename = f"output_{uuid.uuid4()}.wav"
@@ -217,7 +217,7 @@ def translate_audio():
         
         target_lang_code = lang_map.get(target_language, "en") # Default to English if not found
 
-        print(f"🎙️ Generating Audio in {target_lang_code}...")
+        print(f" Generating Audio in {target_lang_code}...")
         
         tts.tts_to_file(
             text=translated_text,
@@ -263,4 +263,4 @@ def translate_audio():
         return {"error": str(e)}, 500
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True)   ## lets check for run

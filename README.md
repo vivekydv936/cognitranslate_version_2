@@ -100,3 +100,7 @@ Open your web browser and go to `http://127.0.0.1:5000`. Click the mic, speak, a
 Voice cloning is heavy work for a computer! 
 - If you have an **NVIDIA GPU** (like an RTX 4050 or better), it will take about **3-5 seconds**.
 - If you only have a **CPU** (standard computer processor), it might take **30-60 seconds** to generate the audio. The code is smart enough to detect what you have and use it automatically!
+
+
+
+![alt text](<Screenshot 2026-04-28 003408.png>)

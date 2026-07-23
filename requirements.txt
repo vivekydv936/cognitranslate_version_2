@@ -1,21 +1,41 @@
-# Torch with CUDA 12.1 (Must be installed from this URL)
+# ==========================================
+# 🚀 CogniTranslate - Project Dependencies
+# ==========================================
+
+# ------------------------------------------
+# 1. CORE WEB FRAMEWORK
+# ------------------------------------------
+Flask==3.1.2                # The backend Python web server that runs the app
+python-dotenv==1.2.1        # Reads the .env file to load your API key securely
+requests==2.32.5            # Handles HTTP requests for general API communications
+
+# ------------------------------------------
+# 2. GOOGLE GEMINI AI
+# ------------------------------------------
+google-generativeai==0.8.5  # Google's official library for Speech-to-Text and Translation
+
+# ------------------------------------------
+# 3. PYTORCH (GPU ACCELERATION)
+# ------------------------------------------
+# We use CUDA 12.1 to make voice cloning run fast on NVIDIA GPUs.
+# This tells pip where to find the special GPU-enabled versions:
 --extra-index-url https://download.pytorch.org/whl/cu121
 
-# Deep Learning / AI
-torch==2.5.1+cu121
-torchaudio==2.5.1+cu121
-torchvision==0.20.1+cu121
-TTS==0.22.0
+torch==2.5.1+cu121          # The main Deep Learning engine
+torchaudio==2.5.1+cu121     # Handles audio processing for PyTorch
+torchvision==0.20.1+cu121   # Required helper library for PyTorch
 
-# Critical Versions for Coqui TTS Compatibility
-numpy==1.22.0
-networkx==2.8.8
-scipy==1.11.4
+# ------------------------------------------
+# 4. COQUI XTTS v2 (VOICE CLONING)
+# ------------------------------------------
+TTS==0.22.0                 # Coqui TTS library: Does the actual voice cloning magic
 
-# App Dependencies
-Flask==3.1.2
-google-generativeai==0.8.5
-python-dotenv==1.2.1
-requests==2.32.5 # Removed for local TTS
-TTS
-transformers==4.36.2
+# ------------------------------------------
+# 5. CRITICAL COMPATIBILITY FIXES
+# ------------------------------------------
+# Coqui TTS is very strict about which versions of these libraries it uses.
+# Do NOT change these versions, or voice cloning will crash!
+numpy==1.22.0               # Math library required by Coqui TTS
+networkx==2.8.8             # Graph library required by Coqui TTS
+scipy==1.11.4               # Science library required by Coqui TTS
+transformers==4.36.2        # HuggingFace library (must be exactly this version for XTTS v2)

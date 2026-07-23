@@ -3,10 +3,10 @@
 import os
 import google.generativeai as genai
 
-# IMPORTANT: Set your API key here.
-# For now, we'll paste it directly. Later, we'll learn a safer way.
-# Replace "YOUR_API_KEY_HERE" with the key you got from Google AI Studio.
-API_KEY = "AIzaSyDAHLpGZQAvhX8A7RkPvdKC9Zt8pit3_nc"
+# Load API key from .env file (same as app.py)
+from dotenv import load_dotenv
+load_dotenv()
+API_KEY = os.getenv("GOOGLE_API_KEY")
 
 # Configure the library with your key
 genai.configure(api_key=API_KEY)
